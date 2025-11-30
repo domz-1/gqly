@@ -1,6 +1,6 @@
 {
   "name": "gqly",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Bridge REST APIs and GraphQL by mapping existing controllers",
   "repository": {
     "type": "git",
