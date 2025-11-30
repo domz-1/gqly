@@ -1,0 +1,45 @@
+{
+  "name": "gqly",
+  "version": "1.0.0",
+  "description": "Bridge REST APIs and GraphQL by mapping existing controllers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "example:app": "node examples/app.js",
+    "example:test": "node examples/test-gqly.js"
+  },
+  "keywords": [
+    "graphql",
+    "rest",
+    "express",
+    "middleware",
+    "adapter",
+    "api",
+    "bridge",
+    "controller",
+    "mapping",
+    "rest-to-graphql",
+    "auto-generation",
+    "schema",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "graphql": "^16.8.1",
+    "js-yaml": "^4.1.0"
+  },
+  "peerDependencies": {
+    "express": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.5",
+    "@types/express": "^4.17.21",
+    "@types/graphql": "^14.5.0",
+    "@types/js-yaml": "^4.0.9"
+  }
+}
