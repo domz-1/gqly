@@ -7,9 +7,11 @@
         "start": "node app.js"
     },
     "dependencies": {
+        "bcryptjs": "^2.4.3",
         "express": "^4.18.2",
-        "sqlite3": "^5.1.7",
+        "gqly": "workspace:*",
+        "jsonwebtoken": "^9.0.2",
         "sequelize": "^6.37.1",
-        "gqly": "file:../"
+        "sqlite3": "^5.1.7"
     }
 }
