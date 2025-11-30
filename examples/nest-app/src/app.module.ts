@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { GqlyModule } from '../../../src';
+import { GqlyModule } from '../../../src/nestjs/gqly.module';
 import * as path from 'path';
 
 @Module({

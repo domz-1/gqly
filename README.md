@@ -25,13 +25,23 @@ yarn add gqly
 
 ## Configuration
 
-Create a `gqly.config.yaml` file in your project root. This file defines your GraphQL schema and maps it to your controllers.
+Create a `gqly.config.yaml` file in your project. This file defines your GraphQL schema and maps it to your controllers.
+
+### Path Specifications
+
+> [!IMPORTANT]
+> **Controller Paths in YAML Config**: Use **relative filenames only** (e.g., `userController.js#getUser`). These are resolved relative to the `controllersPath` option you provide when initializing `gqly`.
+
+> [!IMPORTANT]
+> **API Options Paths**: Use **absolute paths** with `path.join(__dirname, ...)` for `configPath` and `controllersPath` options.
+
+### Example Configuration
 
 ```yaml
 queries:
   getUser:
     description: "Fetch user by ID"
-    controller: "userController.js#getUser" # Path to controller file and exported function
+    controller: "userController.js#getUser" # ✅ Relative filename only
     input:
       type: object
       properties:
@@ -46,6 +56,18 @@ queries:
     http:
       paramMapping:
         id: id # Maps GraphQL 'id' argument to req.params.id
+
+  getAllUsers:
+    description: "Fetch all users"
+    controller: "userController.js#getAllUsers" # ✅ Same file, different function
+    output:
+      type: array
+      items:
+        type: object
+        properties:
+          id: { type: integer }
+          name: { type: string }
+          email: { type: string }
 
 mutations:
   createUser:
@@ -63,15 +85,49 @@ mutations:
         id: { type: integer }
         name: { type: string }
     http: {} # Arguments are automatically mapped to req.body by default
+
+  login:
+    description: "Login user"
+    controller: "authController.js#login" # ✅ Different controller file
+    input:
+      type: object
+      properties:
+        email: { type: string }
+        password: { type: string }
+      required: [email, password]
+    output:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+    http: {}
 ```
 
 ### Configuration Options
 
-- **queries/mutations**: Define your operations.
-- **controller**: The path to your controller file and the function name, separated by `#`.
-- **input**: JSON Schema definition for the input arguments.
+#### Operation Fields
+
+- **queries/mutations**: Define your GraphQL operations.
+- **controller**: Relative filename and function name, separated by `#` (e.g., `userController.js#getUser`).
+  - Format: `<filename>#<exportedFunction>`
+  - Path is resolved relative to the `controllersPath` option
+  - ✅ Correct: `"userController.js#getUser"`
+  - ❌ Wrong: `"./controllers/userController.js#getUser"` (don't include directory)
+  - ❌ Wrong: `"/absolute/path/userController.js#getUser"` (don't use absolute paths)
+- **description**: Human-readable description of the operation.
+- **input**: JSON Schema definition for the input arguments (optional for queries without arguments).
 - **output**: JSON Schema definition for the return type.
-- **http.paramMapping**: Map GraphQL arguments to `req.params`. If omitted, arguments are mapped to `req.body`.
+- **http**: HTTP-specific configuration.
+
+#### HTTP Configuration
+
+- **http.paramMapping**: Map GraphQL arguments to `req.params`.
+  - Example: `{ id: id }` maps the GraphQL `id` argument to `req.params.id`
+  - If omitted, all arguments are mapped to `req.body` by default.
 
 ## Usage
 
@@ -124,7 +180,7 @@ Import `GqlyModule` in your root `AppModule`.
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { GqlyModule } from 'gqly';
+import { GqlyModule } from 'gqly/nestjs';
 import * as path from 'path';
 
 @Module({
@@ -144,17 +200,80 @@ export class AppModule { }
 
 ### `attachGraphQL(app, configPath, options)`
 
-- `app`: The Express application instance.
-- `configPath`: Absolute path to the `gqly.config.yaml` file.
-- `options`:
-    - `controllersPath`: Absolute path to the directory containing your controllers.
-    - `route`: The URL path for the GraphQL endpoint (default: `/graphql`).
-    - `playground`: Boolean to enable/disable GraphQL Playground (default: `true`).
+Attaches GraphQL endpoint to your Express application.
 
-### `GqlyModule.forRoot(options)`
+**Parameters:**
 
-- `options`:
-    - `configPath`: Absolute path to the `gqly.config.yaml` file.
-    - `controllersPath`: Absolute path to the directory containing your controllers.
-    - `route`: The URL path for the GraphQL endpoint (default: `/graphql`).
-    - `playground`: Boolean to enable/disable GraphQL Playground (default: `true`).
+- `app` *(Express Application)*: The Express application instance.
+- `configPath` *(string)*: **Absolute path** to the `gqly.config.yaml` file.
+  - ✅ Use: `path.join(__dirname, 'gqly.config.yaml')`
+  - ❌ Avoid: `'./gqly.config.yaml'` (relative paths may fail)
+- `options` *(object)*:
+  - `controllersPath` *(string)*: **Absolute path** to the directory containing your controllers.
+    - ✅ Use: `path.join(__dirname, 'controllers')`
+    - ❌ Avoid: `'./controllers'` (relative paths may fail)
+  - `route` *(string, optional)*: The URL path for the GraphQL endpoint. Default: `'/graphql'`
+  - `playground` *(boolean, optional)*: Enable/disable GraphQL Playground. Default: `true`
+
+**Example:**
+
+```javascript
+const path = require('path');
+const { attachGraphQL } = require('gqly');
+
+attachGraphQL(app, path.join(__dirname, 'gqly.config.yaml'), {
+    controllersPath: path.join(__dirname, 'controllers'),
+    route: '/graphql',
+    playground: true
+});
+```
+
+### `GqlyModule.forRoot(options)` (NestJS)
+
+Creates a dynamic NestJS module for GraphQL integration.
+
+**Parameters:**
+
+- `options` *(object)*:
+  - `configPath` *(string)*: **Absolute path** to the `gqly.config.yaml` file.
+    - ✅ Use: `path.join(__dirname, '../gqly.config.yaml')`
+    - Note: In NestJS, `__dirname` points to the `dist` folder after compilation
+  - `controllersPath` *(string)*: **Absolute path** to the directory containing your controllers.
+    - ✅ Use: `path.join(__dirname, '../controllers')`
+  - `route` *(string, optional)*: The URL path for the GraphQL endpoint. Default: `'/graphql'`
+  - `playground` *(boolean, optional)*: Enable/disable GraphQL Playground. Default: `true`
+
+**Example:**
+
+```typescript
+import { Module } from '@nestjs/common';
+import { GqlyModule } from 'gqly/nestjs';
+import * as path from 'path';
+
+@Module({
+    imports: [
+        GqlyModule.forRoot({
+            configPath: path.join(__dirname, '../gqly.config.yaml'),
+            controllersPath: path.join(__dirname, '../controllers'),
+            route: '/graphql',
+            playground: true,
+        }),
+    ],
+})
+export class AppModule { }
+```
+
+## Path Resolution Summary
+
+| Context | Path Type | Example |
+|---------|-----------|---------|
+| **YAML Config** - `controller` field | Relative filename only | `"userController.js#getUser"` |
+| **Express** - `configPath` | Absolute path | `path.join(__dirname, 'gqly.config.yaml')` |
+| **Express** - `controllersPath` | Absolute path | `path.join(__dirname, 'controllers')` |
+| **NestJS** - `configPath` | Absolute path | `path.join(__dirname, '../gqly.config.yaml')` |
+| **NestJS** - `controllersPath` | Absolute path | `path.join(__dirname, '../controllers')` |
+
+## License
+
+ISC
+

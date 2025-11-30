@@ -9,6 +9,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "commonjs",
+  "exports": {
+    ".": "./dist/index.js",
+    "./nestjs": "./dist/nestjs/gqly.module.js"
+  },
   "workspaces": [
     "examples/*"
   ],
