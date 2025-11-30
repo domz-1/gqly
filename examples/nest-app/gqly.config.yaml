@@ -1,0 +1,181 @@
+queries:
+  getUser:
+    description: "Fetch user by ID"
+    controller: "userController.js#getUser"
+    input:
+      type: object
+      properties:
+        id: { type: string }
+      required: [id]
+    output:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+        posts:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              content: { type: string }
+    http:
+      paramMapping:
+        id: id
+
+  getAllUsers:
+    description: "Fetch all users"
+    controller: "userController.js#getAllUsers"
+    output:
+      type: array
+      items:
+        type: object
+        properties:
+          id: { type: integer }
+          name: { type: string }
+          email: { type: string }
+          createdAt: { type: string }
+          updatedAt: { type: string }
+          posts:
+            type: array
+            items:
+              type: object
+              properties:
+                id: { type: integer }
+                title: { type: string }
+                content: { type: string }
+
+  me:
+    description: "Get current user"
+    controller: "authController.js#me"
+    output:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+    http: {}
+
+mutations:
+  register:
+    description: "Register a new user"
+    controller: "authController.js#register"
+    input:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+      required: [name, email, password]
+    output:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            email: { type: string }
+    http: {}
+
+  login:
+    description: "Login user"
+    controller: "authController.js#login"
+    input:
+      type: object
+      properties:
+        email: { type: string }
+        password: { type: string }
+      required: [email, password]
+    output:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            email: { type: string }
+    http: {}
+
+  createUser:
+    description: "Create new user"
+    controller: "userController.js#createUser"
+    input:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+      required: [name, email]
+    output:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+    http: {}
+
+  updateUser:
+    description: "Update user"
+    controller: "userController.js#updateUser"
+    input:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+      required: [id]
+    output:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+    http:
+      paramMapping:
+        id: id
+
+  deleteUser:
+    description: "Delete user"
+    controller: "userController.js#deleteUser"
+    input:
+      type: object
+      properties:
+        id: { type: string }
+      required: [id]
+    output:
+      type: object
+      properties:
+        message: { type: string }
+    http:
+      paramMapping:
+        id: id
+
+  createPost:
+    description: "Create new post for a user"
+    controller: "userController.js#createPost"
+    input:
+      type: object
+      properties:
+        userId: { type: integer }
+        title: { type: string }
+        content: { type: string }
+      required: [userId, title, content]
+    output:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        content: { type: string }
+        userId: { type: integer }
+    http: {}

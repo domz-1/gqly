@@ -49,7 +49,61 @@ queries:
                 title: { type: string }
                 content: { type: string }
 
+  me:
+    description: "Get current user"
+    controller: "authController.js#me"
+    output:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+    http: {}
+
 mutations:
+  register:
+    description: "Register a new user"
+    controller: "authController.js#register"
+    input:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+      required: [name, email, password]
+    output:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            email: { type: string }
+    http: {}
+
+  login:
+    description: "Login user"
+    controller: "authController.js#login"
+    input:
+      type: object
+      properties:
+        email: { type: string }
+        password: { type: string }
+      required: [email, password]
+    output:
+      type: object
+      properties:
+        token: { type: string }
+        user:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            email: { type: string }
+    http: {}
+
   createUser:
     description: "Create new user"
     controller: "userController.js#createUser"
