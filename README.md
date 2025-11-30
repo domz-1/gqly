@@ -1,6 +1,6 @@
 # GQLY
 
-![GQLY Cover](./public/galy-cover.png)
+![GQLY Cover](https://github.com/domz-1/gqly/raw/main/public/galy-cover.png)
 
 **Zero-Boilerplate GraphQL for Express & NestJS**
 
