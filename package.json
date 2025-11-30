@@ -2,6 +2,10 @@
   "name": "gqly",
   "version": "1.0.0",
   "description": "Bridge REST APIs and GraphQL by mapping existing controllers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/domz-1/gqly.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "commonjs",
